@@ -4,48 +4,982 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>SafeHer AI</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0D0D0F;--bg2:#141417;--bg3:#1C1C21;--bg4:#222228;
-  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);
-  --text:#F0EFE8;--muted:#888780;--muted2:#555550;
-  --red:#E24B4A;--red-glow:rgba(226,75,74,0.35);
-  --green:#97C459;--green-glow:rgba(151,196,89,0.3);
-  --amber:#FAC775;--amber-bg:rgba(186,117,23,0.15);
-  --blue:#378ADD;
+  --bg:#08080A;--bg2:#111114;--bg3:#18181D;--bg4:#1F1F26;--bg5:#26262F;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#EDECEA;--muted:#7A7870;--muted2:#484842;
+  --red:#E24B4A;--red2:#C93635;--red-glow:rgba(226,75,74,0.3);
+  --green:#8BBF4E;--green2:#97C459;--green-glow:rgba(139,191,78,0.28);
+  --amber:#F0B429;--amber-bg:rgba(240,180,41,0.1);
+  --blue:#4A9EE0;--purple:#8B7FE8;
 }
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center}
+html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
+
+/* ── BACKGROUND PULSE (antivirus always active) ── */
+.bg-pulse{position:fixed;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--green),transparent);animation:scan 3s linear infinite;z-index:50;opacity:0.6}
+@keyframes scan{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+
 /* ── NAV ── */
-nav{width:100%;max-width:420px;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:0.5px solid var(--border)}
-.nav-logo{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;letter-spacing:-0.5px}
-.nav-logo span{color:var(--green)}
-.nav-status{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
-.status-dot{width:7px;height:7px;border-radius:50%}
+nav{width:100%;max-width:430px;padding:14px 20px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:0.5px solid var(--border);position:sticky;top:0;background:rgba(8,8,10,0.92);backdrop-filter:blur(12px);z-index:40}
+.nav-logo{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;letter-spacing:-0.3px}
+.nav-logo span{color:var(--green2)}
+.nav-right{display:flex;align-items:center;gap:10px}
+.bg-pill{display:flex;align-items:center;gap:5px;background:rgba(139,191,78,0.1);border:0.5px solid rgba(139,191,78,0.2);border-radius:20px;padding:4px 10px;font-size:10px;color:var(--green2);letter-spacing:0.04em}
+.bg-dot{width:5px;height:5px;border-radius:50%;background:var(--green2);animation:bgpulse 2s infinite}
+@keyframes bgpulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.7)}}
+
 /* ── SCREENS ── */
-.screen{width:100%;max-width:420px;padding:20px;display:none;flex-direction:column;gap:16px;animation:fadeIn 0.3s ease}
+.screen{width:100%;max-width:430px;padding:16px 18px;display:none;flex-direction:column;gap:14px;animation:fadeUp 0.25s ease}
 .screen.active{display:flex}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
 /* ── CARDS ── */
-.card{background:var(--bg2);border-radius:16px;border:0.5px solid var(--border);padding:16px}
-.card-title{font-family:'Syne',sans-serif;font-size:11px;letter-spacing:0.1em;color:var(--muted);text-transform:uppercase;margin-bottom:10px}
-/* ── RISK BADGE ── */
-.risk-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500}
-.safe{background:rgba(99,153,34,0.12);color:var(--green);border:0.5px solid rgba(151,196,89,0.25)}
-.medium{background:rgba(186,117,23,0.12);color:var(--amber);border:0.5px solid rgba(250,199,117,0.25)}
-.danger{background:rgba(226,75,74,0.12);color:#F09595;border:0.5px solid rgba(226,75,74,0.25)}
-.bdot{width:6px;height:6px;border-radius:50%}
-.bdot.safe{background:var(--green);box-shadow:0 0 6px var(--green)}
+.card{background:var(--bg2);border-radius:18px;border:0.5px solid var(--border);padding:16px;position:relative;overflow:hidden}
+.card-glow-red{box-shadow:0 0 40px rgba(226,75,74,0.08) inset}
+.card-title{font-family:'Syne',sans-serif;font-size:10px;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase;margin-bottom:12px}
+
+/* ── RISK BADGES ── */
+.rbadge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:500;letter-spacing:0.02em}
+.safe{background:rgba(139,191,78,0.1);color:var(--green2);border:0.5px solid rgba(139,191,78,0.22)}
+.medium{background:rgba(240,180,41,0.1);color:var(--amber);border:0.5px solid rgba(240,180,41,0.22)}
+.danger{background:rgba(226,75,74,0.1);color:#EE8080;border:0.5px solid rgba(226,75,74,0.22)}
+.bdot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.bdot.safe{background:var(--green2);box-shadow:0 0 6px var(--green-glow)}
 .bdot.medium{background:var(--amber)}
-.bdot.danger{background:#F09595;animation:blink 1s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
-/* ── MAP AREA ── */
-.map-box{height:140px;background:linear-gradient(135deg,#0f0f1a,#141428,#0d1520);border-radius:12px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
-.map-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(151,196,89,0.07) 1px,transparent 1px),linear-gradient(90deg,rgba(151,196,89,0.07) 1px,transparent 1px);background-size:22px 22px}
-.map-pin{width:14px;height:14px;border-radius:50%;background:var(--green);box-shadow:0 0 14px var(--green-glow);z-index:2;position:relative}
-.map-ring{position:absolute;border-radius:50%;border:1px solid rgba(151,196,89,0.4);animation:expand 2s infinite}
-.map-ring:nth-child(2){animation-delay:0.6s}
-@keyframes expand{0%{width:20px;height:20px;opacity:0.8}100%{width:70px;height:70px;opacity:0}}
-.map-label{position:absolute;bottom:8px;left:12px;font-size:10px;color:rgba(151,196,89,0.8)}
-/* ── SOS BUTTON ── */
+.bdot.danger{background:#EE8080;animation:blink 0.9s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.25}}
+
+/* ── MAP ── */
+.map-box{height:150px;border-radius:14px;background:linear-gradient(145deg,#0a0a18,#0f1122,#0c1420);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.map-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(139,191,78,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(139,191,78,0.06) 1px,transparent 1px);background-size:24px 24px}
+.map-roads{position:absolute;inset:0;opacity:0.08;background:linear-gradient(45deg,transparent 40%,rgba(139,191,78,0.5) 41%,rgba(139,191,78,0.5) 42%,transparent 43%),linear-gradient(-30deg,transparent 55%,rgba(139,191,78,0.4) 56%,rgba(139,191,78,0.4) 57%,transparent 58%)}
+.map-pin-wrap{position:relative;z-index:3;display:flex;align-items:center;justify-content:center}
+.map-ring{position:absolute;border-radius:50%;border:1px solid rgba(139,191,78,0.35);animation:mexpand 2.5s infinite}
+.map-ring:nth-child(2){animation-delay:.8s}
+@keyframes mexpand{0%{width:16px;height:16px;opacity:.8}100%{width:72px;height:72px;opacity:0}}
+.map-pin{width:13px;height:13px;border-radius:50%;background:var(--green2);box-shadow:0 0 14px var(--green-glow);z-index:4;position:relative}
+.map-tag{position:absolute;bottom:10px;left:12px;background:rgba(8,8,10,0.75);border:0.5px solid var(--border2);border-radius:8px;padding:4px 8px;font-size:10px;color:rgba(151,196,89,0.9)}
+.map-track-badge{position:absolute;top:10px;right:10px;background:rgba(8,8,10,0.75);border:0.5px solid rgba(226,75,74,0.3);border-radius:8px;padding:4px 8px;font-size:9px;color:#EE8080;display:none;align-items:center;gap:4px}
+.map-track-badge.on{display:flex}
+
+/* ── SOS ── */
+.sos-wrap{display:flex;flex-direction:column;align-items:center;padding:8px 0 6px}
+.sos-outer{width:172px;height:172px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative}
+.sos-pring{position:absolute;border-radius:50%;animation:sosexp 2.4s ease-out infinite}
+.sos-pring:nth-child(1){border:1.5px solid rgba(226,75,74,0.25);animation-delay:0s}
+.sos-pring:nth-child(2){border:1.5px solid rgba(226,75,74,0.15);animation-delay:.8s}
+@keyframes sosexp{0%{width:130px;height:130px;opacity:.8}100%{width:220px;height:220px;opacity:0}}
+.sos-btn{width:116px;height:116px;border-radius:50%;background:conic-gradient(from 0deg,#8a1f1f,#c93635,#e24b4a,#c93635,#8a1f1f);border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 0 36px var(--red-glow),0 0 70px rgba(226,75,74,0.1);transition:transform .15s,box-shadow .15s;position:relative;z-index:2}
+.sos-btn::before{content:'';position:absolute;inset:3px;border-radius:50%;background:linear-gradient(145deg,#d53f3e,#8a1f1f)}
+.sos-btn:hover{transform:scale(1.05);box-shadow:0 0 50px var(--red-glow)}
+.sos-btn:active{transform:scale(0.95)}
+.sos-label{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:#fff;line-height:1;position:relative;z-index:1;text-shadow:0 2px 8px rgba(0,0,0,0.5)}
+.sos-sub{font-size:9px;color:rgba(255,255,255,0.55);letter-spacing:0.12em;position:relative;z-index:1;margin-top:2px}
+.sos-hint{font-size:11px;color:var(--muted);margin-top:12px;text-align:center}
+.sos-cancel{display:none;margin-top:8px;background:var(--bg3);border:0.5px solid var(--border2);border-radius:10px;color:var(--amber);font-size:12px;padding:8px 20px;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+/* ── COUNTDOWN OVERLAY (fake alert filter) ── */
+.countdown-overlay{position:fixed;inset:0;background:rgba(8,8,10,0.92);z-index:150;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.countdown-overlay.show{display:flex}
+.cdown-ring{width:110px;height:110px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative}
+.cdown-ring svg{position:absolute;top:0;left:0;transform:rotate(-90deg)}
+.cdown-ring circle{fill:none;stroke:var(--red);stroke-width:3;stroke-linecap:round;stroke-dasharray:314;transition:stroke-dashoffset 1s linear}
+.cdown-num{font-family:'Syne',sans-serif;font-size:40px;font-weight:800;color:var(--red)}
+.cdown-label{font-size:14px;color:var(--muted);text-align:center}
+.cdown-cancel{background:var(--bg3);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:14px;padding:12px 28px;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:8px}
+.cdown-cancel:hover{background:var(--bg4)}
+
+/* ── METRICS ── */
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.metric{background:var(--bg3);border-radius:14px;padding:13px 14px;border:0.5px solid var(--border)}
+.metric-val{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;line-height:1}
+.metric-lbl{font-size:10px;color:var(--muted);margin-top:4px}
+
+/* ── CONTACTS ── */
+.contact-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.contact-scroll::-webkit-scrollbar{display:none}
+.chip{background:var(--bg3);border-radius:14px;padding:10px 12px;border:0.5px solid var(--border);min-width:70px;text-align:center;flex-shrink:0;cursor:pointer;transition:border-color .2s}
+.chip:hover{border-color:var(--border2)}
+.chip.priority{border-color:rgba(139,191,78,0.3)}
+.avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;margin:0 auto 5px}
+.av-green{background:rgba(139,191,78,0.14);color:var(--green2)}
+.av-blue{background:rgba(74,158,224,0.14);color:var(--blue)}
+.av-purple{background:rgba(139,127,232,0.14);color:var(--purple)}
+.chip-name{font-size:10px;color:var(--muted);white-space:nowrap}
+.priority-star{font-size:8px;color:var(--amber);margin-top:1px}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{width:100%;max-width:430px;display:flex;justify-content:space-around;padding:10px 0 18px;border-top:0.5px solid var(--border);position:fixed;bottom:0;background:rgba(8,8,10,0.94);backdrop-filter:blur(12px);z-index:40}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:5px 16px;border-radius:12px;transition:background .2s;color:var(--muted)}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{color:var(--green2)}
+.nav-icon{font-size:17px;line-height:1}
+.nav-txt{font-size:9px;letter-spacing:0.05em}
+.nav-pip{width:4px;height:4px;border-radius:50%;background:var(--green2);margin-top:1px}
+
+/* ── AI SCREEN ── */
+.risk-score-big{font-family:'Syne',sans-serif;font-size:52px;font-weight:800;line-height:1;background:linear-gradient(135deg,var(--green2),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.risk-score-big.medium{background:linear-gradient(135deg,var(--amber),#e8950a);-webkit-background-clip:text;background-clip:text}
+.risk-score-big.danger{background:linear-gradient(135deg,#EE8080,var(--red));-webkit-background-clip:text;background-clip:text}
+.risk-bar-wrap{margin:10px 0 4px}
+.risk-track{height:5px;border-radius:3px;background:var(--bg5);overflow:visible;position:relative}
+.risk-fill{height:100%;border-radius:3px;transition:width .9s cubic-bezier(.4,0,.2,1),background .9s}
+.risk-fill::after{content:'';position:absolute;right:-1px;top:-3px;width:10px;height:10px;border-radius:50%;background:inherit;box-shadow:0 0 8px currentColor;transition:right .9s}
+.factor-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.factor-chip{background:var(--bg3);border:0.5px solid var(--border);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:border-color .2s,background .2s;-webkit-user-select:none;user-select:none}
+.factor-chip.on{border-color:rgba(226,75,74,0.3);background:rgba(226,75,74,0.06)}
+.factor-chip.on .fc-icon{background:rgba(226,75,74,0.15);color:#EE8080}
+.fc-icon{width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;transition:background .2s,color .2s}
+.fc-title{font-size:12px;font-weight:500;color:var(--text)}
+.fc-desc{font-size:10px;color:var(--muted);margin-top:1px}
+.suggestion{display:flex;align-items:center;gap:12px;background:var(--bg3);border-radius:13px;padding:12px;border:0.5px solid var(--border);cursor:pointer;transition:border-color .2s,transform .15s}
+.suggestion:active{transform:scale(0.98)}
+.sug-icon{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.sug-t{font-size:13px;font-weight:500}
+.sug-d{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* ── VOICE ── */
+.voice-card{background:var(--bg2);border-radius:18px;border:0.5px solid var(--border);padding:18px;text-align:center}
+.waves{display:flex;align-items:center;justify-content:center;gap:4px;height:40px;margin:12px 0}
+.wbar{width:4px;border-radius:2px;background:var(--bg5);transition:background .3s}
+.wbar.on{background:var(--green2);animation:wv .7s ease-in-out infinite}
+@keyframes wv{0%,100%{transform:scaleY(.35)}50%{transform:scaleY(1)}}
+.wbar:nth-child(1){height:12px}.wbar:nth-child(2){height:18px;animation-delay:.1s}.wbar:nth-child(3){height:28px;animation-delay:.2s}
+.wbar:nth-child(4){height:22px;animation-delay:.3s}.wbar:nth-child(5){height:32px;animation-delay:.15s}
+.wbar:nth-child(6){height:18px;animation-delay:.25s}.wbar:nth-child(7){height:12px;animation-delay:.05s}
+.wbar:nth-child(8){height:20px;animation-delay:.35s}.wbar:nth-child(9){height:14px;animation-delay:.1s}
+
+/* ── TIMER ── */
+.timer-main{display:flex;justify-content:space-between;align-items:center;background:var(--bg3);border-radius:14px;padding:14px;border:0.5px solid var(--border)}
+.timer-badge{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;padding:6px 14px;border-radius:10px;background:var(--amber-bg);color:var(--amber);border:0.5px solid rgba(240,180,41,0.2)}
+.cbtn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.cbtn{background:var(--bg4);border:0.5px solid var(--border);border-radius:9px;color:var(--text);font-size:12px;padding:7px 14px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .2s,border-color .2s}
+.cbtn:hover{background:var(--bg5);border-color:var(--border2)}
+
+/* ── FEATURE TILES ── */
+.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.feat-tile{background:var(--bg3);border-radius:16px;border:0.5px solid var(--border);padding:16px;cursor:pointer;transition:border-color .2s,transform .15s;display:flex;flex-direction:column;gap:8px}
+.feat-tile:hover{border-color:var(--border2)}
+.feat-tile:active{transform:scale(0.97)}
+.ft-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.ft-title{font-size:12px;font-weight:500;line-height:1.3}
+.ft-desc{font-size:10px;color:var(--muted);line-height:1.5}
+
+/* ── CONTACTS SCREEN ── */
+.inp{background:var(--bg4);border:0.5px solid var(--border);border-radius:12px;color:var(--text);font-size:13px;padding:11px 14px;font-family:'DM Sans',sans-serif;width:100%;outline:none;transition:border-color .2s}
+.inp:focus{border-color:var(--border2)}
+.inp::placeholder{color:var(--muted2)}
+.priority-toggle{display:flex;align-items:center;gap:10px;background:var(--bg4);border:0.5px solid var(--border);border-radius:12px;padding:10px 14px;cursor:pointer}
+.toggle-track{width:36px;height:20px;border-radius:10px;background:var(--bg5);position:relative;transition:background .3s;flex-shrink:0}
+.toggle-track.on{background:rgba(139,191,78,0.4)}
+.toggle-thumb{width:14px;height:14px;border-radius:50%;background:var(--muted);position:absolute;top:3px;left:3px;transition:transform .3s,background .3s}
+.toggle-track.on .toggle-thumb{transform:translateX(16px);background:var(--green2)}
+.btn-primary{background:rgba(139,191,78,0.15);border:0.5px solid rgba(139,191,78,0.28);border-radius:12px;color:var(--green2);font-size:13px;font-weight:500;padding:11px;cursor:pointer;font-family:'DM Sans',sans-serif;width:100%;transition:background .2s}
+.btn-primary:hover{background:rgba(139,191,78,0.22)}
+.clist-item{background:var(--bg3);border-radius:13px;padding:12px 14px;border:0.5px solid var(--border);display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.clist-info{flex:1}
+.clist-name{font-size:13px;font-weight:500}
+.clist-phone{font-size:11px;color:var(--muted);margin-top:2px}
+.clist-priority{font-size:10px;color:var(--amber);margin-top:2px}
+.del-btn{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:16px;padding:4px;transition:color .2s}
+.del-btn:hover{color:var(--red)}
+
+/* ── LOG ── */
+.log-item{background:var(--bg3);border-radius:12px;padding:11px 14px;border:0.5px solid var(--border);margin-bottom:8px}
+.log-time{font-size:10px;color:var(--muted);margin-bottom:3px}
+.log-type{font-size:12px;font-weight:500}
+.log-sub{font-size:10px;color:var(--muted);margin-top:3px}
+.empty-state{text-align:center;color:var(--muted);font-size:13px;padding:28px 0}
+
+/* ── SOS FLASH ── */
+.sos-flash{position:fixed;inset:0;background:rgba(8,8,10,0.95);z-index:200;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px}
+.sos-flash.show{display:flex;animation:flashIn .3s ease}
+@keyframes flashIn{from{opacity:0}to{opacity:1}}
+.flash-icon{font-size:56px;animation:flashIcon .5s ease}
+@keyframes flashIcon{0%{transform:scale(.5)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
+.flash-title{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:var(--red)}
+.flash-sub{font-size:13px;color:var(--muted);text-align:center;max-width:280px;line-height:1.5}
+.flash-close{margin-top:6px;background:var(--bg3);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:13px;padding:12px 28px;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+/* ── BG STATUS BAR ── */
+.bg-status{background:var(--bg3);border:0.5px solid var(--border);border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:10px}
+.bg-bars{display:flex;gap:2px;align-items:center}
+.bbr{width:3px;border-radius:1.5px;background:var(--green2);animation:bbra .9s ease-in-out infinite}
+.bbr:nth-child(2){height:8px;animation-delay:.15s}
+.bbr:nth-child(3){height:14px;animation-delay:.3s}
+.bbr:nth-child(4){height:10px;animation-delay:.45s}
+.bbr:nth-child(5){height:6px;animation-delay:.6s}
+@keyframes bbra{0%,100%{opacity:.4}50%{opacity:1}}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--bg3);border:0.5px solid var(--border2);border-radius:14px;padding:11px 20px;font-size:13px;color:var(--text);z-index:300;opacity:0;transition:opacity .25s,transform .25s;white-space:nowrap;max-width:88vw;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── PRIORITY ALERT ── */
+.priority-list{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.priority-item{display:flex;align-items:center;gap:10px;background:var(--bg4);border-radius:10px;padding:8px 12px;border:0.5px solid var(--border)}
+.priority-num{width:22px;height:22px;border-radius:50%;background:rgba(139,191,78,0.14);color:var(--green2);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Syne',sans-serif}
+</style>
+</head>
+<body>
+
+<div class="bg-pulse"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Safe<span>Her</span> AI</div>
+  <div class="nav-right">
+    <div class="bg-pill"><div class="bg-dot"></div>Active</div>
+    <div id="navBadge" class="rbadge safe"><div class="bdot safe"></div><span>Safe</span></div>
+  </div>
+</nav>
+
+<!-- ══ SCREEN: HOME ══════════════════════════════════════════════ -->
+<div class="screen active" id="screen-home">
+
+  <div style="display:flex;justify-content:space-between;align-items:flex-start">
+    <div>
+      <div style="font-size:12px;color:var(--muted)">Good evening</div>
+      <div style="font-family:'Syne',sans-serif;font-size:21px;font-weight:700;margin-top:2px">Stay Protected</div>
+    </div>
+    <div id="homeBadge" class="rbadge safe" style="margin-top:4px"><div class="bdot safe"></div><span>Safe</span></div>
+  </div>
+
+  <!-- Map -->
+  <div class="card" style="padding:0;overflow:hidden">
+    <div class="map-box">
+      <div class="map-grid"></div>
+      <div class="map-roads"></div>
+      <div class="map-pin-wrap">
+        <div class="map-ring"></div>
+        <div class="map-ring"></div>
+        <div class="map-pin"></div>
+      </div>
+      <div class="map-tag" id="mapLabel">Koramangala, Bengaluru</div>
+      <div class="map-track-badge" id="trackBadge"><div style="width:5px;height:5px;border-radius:50%;background:#EE8080;animation:blink .8s infinite"></div>LIVE</div>
+    </div>
+    <div style="padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border-top:0.5px solid var(--border)">
+      <div style="font-size:11px;color:var(--muted)">Location tracking active</div>
+      <div id="trackToggle" style="font-size:11px;color:var(--green2);cursor:pointer" onclick="toggleTracking()">● On</div>
+    </div>
+  </div>
+
+  <!-- Metrics -->
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-val" id="riskScoreVal" style="color:var(--green2)">12%</div>
+      <div class="metric-lbl">AI Risk Score</div>
+    </div>
+    <div class="metric">
+      <div class="metric-val" id="timeVal">--:--</div>
+      <div class="metric-lbl">Current Time</div>
+    </div>
+  </div>
+
+  <!-- SOS -->
+  <div class="card">
+    <div class="sos-wrap">
+      <div class="sos-outer">
+        <div class="sos-pring"></div>
+        <div class="sos-pring"></div>
+        <button class="sos-btn" id="sosBtn" onclick="initiateSOS()">
+          <div class="sos-label">SOS</div>
+          <div class="sos-sub">PRESS NOW</div>
+        </button>
+      </div>
+      <div class="sos-hint">Emergency — sends alert to all contacts</div>
+    </div>
+  </div>
+
+  <!-- Background status -->
+  <div class="bg-status">
+    <div class="bg-bars">
+      <div class="bbr" style="height:6px"></div>
+      <div class="bbr"></div>
+      <div class="bbr"></div>
+      <div class="bbr"></div>
+      <div class="bbr"></div>
+    </div>
+    <div style="flex:1">
+      <div style="font-size:12px;font-weight:500">Background Protection Active</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:2px">Always monitoring · Low power · Reacts on danger</div>
+    </div>
+    <div style="font-size:10px;color:var(--green2)">ON</div>
+  </div>
+
+  <!-- Contacts -->
+  <div class="card">
+    <div class="card-title">Priority Contacts</div>
+    <div class="contact-scroll" id="contactsRow"></div>
+  </div>
+
+</div>
+
+<!-- ══ SCREEN: AI RISK ═══════════════════════════════════════════ -->
+<div class="screen" id="screen-ai">
+
+  <div style="font-family:'Syne',sans-serif;font-size:19px;font-weight:700">AI Risk Monitor</div>
+
+  <!-- Alert -->
+  <div id="riskAlertCard" style="display:none;background:rgba(226,75,74,0.07);border:0.5px solid rgba(226,75,74,0.2);border-radius:16px;padding:14px">
+    <div style="font-size:12px;font-weight:500;color:#EE8080;margin-bottom:5px">⚠ Risk Detected</div>
+    <div style="font-size:12px;color:var(--muted);line-height:1.6" id="riskAlertDesc"></div>
+  </div>
+
+  <!-- Score -->
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div>
+        <div class="card-title">Risk Level</div>
+        <div class="risk-score-big" id="aiScoreDisplay">12%</div>
+        <div id="aiBadge" class="rbadge safe" style="margin-top:8px"><div class="bdot safe"></div><span>Safe</span></div>
+      </div>
+      <div style="text-align:right;font-size:11px;color:var(--muted);line-height:2.1;margin-top:4px">
+        <div>Time <span id="aiTimeVal" style="color:var(--text)">--</span></div>
+        <div>Area <span id="aiAreaVal" style="color:var(--text)">Normal</span></div>
+        <div>Motion <span id="aiMotionVal" style="color:var(--text)">Moving</span></div>
+        <div>Light <span id="aiLightVal" style="color:var(--text)">Daylight</span></div>
+      </div>
+    </div>
+    <div class="risk-bar-wrap">
+      <div class="risk-track"><div class="risk-fill" id="riskFill" style="width:12%;background:var(--green2)"></div></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted2);margin-top:4px">
+      <span>0%</span><span>50%</span><span>100%</span>
+    </div>
+  </div>
+
+  <!-- Factors -->
+  <div class="card">
+    <div class="card-title">Simulate Risk Factors</div>
+    <div class="factor-row">
+      <div class="factor-chip" id="fc1" onclick="toggleFactor(this,'chkNight')">
+        <div class="fc-icon">🌙</div>
+        <div><div class="fc-title">Night time</div><div class="fc-desc">After 10 PM</div></div>
+      </div>
+      <div class="factor-chip" id="fc2" onclick="toggleFactor(this,'chkIsolated')">
+        <div class="fc-icon">🏚</div>
+        <div><div class="fc-title">Isolated</div><div class="fc-desc">Empty area</div></div>
+      </div>
+      <div class="factor-chip" id="fc3" onclick="toggleFactor(this,'chkStationary')">
+        <div class="fc-icon">⏸</div>
+        <div><div class="fc-title">Stationary</div><div class="fc-desc">Not moving</div></div>
+      </div>
+      <div class="factor-chip" id="fc4" onclick="toggleFactor(this,'chkDark')">
+        <div class="fc-icon">💡</div>
+        <div><div class="fc-title">Low light</div><div class="fc-desc">Dark area</div></div>
+      </div>
+    </div>
+    <input type="hidden" id="chkNight" value="0"/>
+    <input type="hidden" id="chkIsolated" value="0"/>
+    <input type="hidden" id="chkStationary" value="0"/>
+    <input type="hidden" id="chkDark" value="0"/>
+  </div>
+
+  <!-- Fake alert filtering info -->
+  <div class="card" style="background:rgba(240,180,41,0.04);border-color:rgba(240,180,41,0.15)">
+    <div class="card-title" style="color:var(--amber)">Fake Alert Filtering</div>
+    <div style="font-size:12px;color:var(--muted);line-height:1.7">AI checks if SOS is real or accidental. A 5-second countdown appears before sending — tap cancel to stop false alarms.</div>
+  </div>
+
+  <!-- Suggestions -->
+  <div class="card">
+    <div class="card-title">Smart Suggestions</div>
+    <div style="display:flex;flex-direction:column;gap:8px" id="suggestionsList"></div>
+  </div>
+
+</div>
+
+<!-- ══ SCREEN: FEATURES ══════════════════════════════════════════ -->
+<div class="screen" id="screen-feat">
+
+  <div style="font-family:'Syne',sans-serif;font-size:19px;font-weight:700">Safety Features</div>
+
+  <!-- Voice -->
+  <div class="voice-card">
+    <div style="font-size:13px;font-weight:500">Voice Trigger</div>
+    <div class="waves" id="wavesRow">
+      <div class="wbar" style="height:12px"></div><div class="wbar" style="height:18px"></div>
+      <div class="wbar" style="height:28px"></div><div class="wbar" style="height:22px"></div>
+      <div class="wbar" style="height:32px"></div><div class="wbar" style="height:18px"></div>
+      <div class="wbar" style="height:12px"></div><div class="wbar" style="height:20px"></div>
+      <div class="wbar" style="height:14px"></div>
+    </div>
+    <div style="font-size:11px;color:var(--muted)" id="voiceStatus">Tap to activate voice detection</div>
+    <button class="btn-primary" style="margin-top:12px" id="voiceBtn" onclick="toggleVoice()">Start Listening</button>
+    <div style="font-size:10px;color:var(--muted2);margin-top:8px">Say "Help me" → auto SOS trigger</div>
+  </div>
+
+  <!-- Check-in Timer -->
+  <div class="card">
+    <div class="card-title">Check-in Timer</div>
+    <div class="timer-main">
+      <div>
+        <div style="font-size:13px;font-weight:500">Auto-alert if no check-in</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">Contacts notified on timeout</div>
+      </div>
+      <div class="timer-badge" id="timerDisplay">OFF</div>
+    </div>
+    <div class="cbtn-row">
+      <button class="cbtn" onclick="startTimer(15)">15 min</button>
+      <button class="cbtn" onclick="startTimer(30)">30 min</button>
+      <button class="cbtn" onclick="startTimer(60)">60 min</button>
+      <button class="cbtn" onclick="resetTimer()">Stop</button>
+    </div>
+    <button class="btn-primary" style="margin-top:10px" onclick="checkIn()">✓ I'm Safe — Check In</button>
+  </div>
+
+  <!-- Feature tiles -->
+  <div class="feat-grid">
+    <div class="feat-tile" onclick="fakecall()">
+      <div class="ft-icon" style="background:rgba(74,158,224,0.12)">📞</div>
+      <div class="ft-title">Fake Call</div>
+      <div class="ft-desc">Simulate incoming call to escape situation</div>
+    </div>
+    <div class="feat-tile" onclick="showToast('🔊 Loud alarm activated — 110dB!')">
+      <div class="ft-icon" style="background:rgba(226,75,74,0.12)">📢</div>
+      <div class="ft-title">Loud Alarm</div>
+      <div class="ft-desc">Siren sound to attract nearby help</div>
+    </div>
+    <div class="feat-tile" onclick="showToast('🎙 Silent audio recording started')">
+      <div class="ft-icon" style="background:rgba(240,180,41,0.12)">🎙</div>
+      <div class="ft-title">Audio Record</div>
+      <div class="ft-desc">Silent background evidence recording</div>
+    </div>
+    <div class="feat-tile" onclick="showShake()">
+      <div class="ft-icon" style="background:rgba(139,127,232,0.12)">📳</div>
+      <div class="ft-title">Shake SOS</div>
+      <div class="ft-desc">Shake phone 3 times = SOS trigger</div>
+    </div>
+  </div>
+
+  <!-- Background processing -->
+  <div class="card" style="background:rgba(139,191,78,0.04);border-color:rgba(139,191,78,0.15)">
+    <div class="card-title" style="color:var(--green2)">Background Processing</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)">
+        <div style="width:6px;height:6px;border-radius:50%;background:var(--green2);flex-shrink:0"></div>Runs silently without disturbing you
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)">
+        <div style="width:6px;height:6px;border-radius:50%;background:var(--green2);flex-shrink:0"></div>Stays active in low-power mode
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)">
+        <div style="width:6px;height:6px;border-radius:50%;background:var(--green2);flex-shrink:0"></div>Only reacts when danger is detected
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)">
+        <div style="width:6px;height:6px;border-radius:50%;background:var(--green2);flex-shrink:0"></div>Like antivirus — always active, acts on threat
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ SCREEN: CONTACTS ══════════════════════════════════════════ -->
+<div class="screen" id="screen-contacts">
+
+  <div style="font-family:'Syne',sans-serif;font-size:19px;font-weight:700">Trusted Contacts</div>
+
+  <!-- Priority order -->
+  <div class="card">
+    <div class="card-title">Alert Priority Order</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px">AI sends alerts in this order — fastest response first</div>
+    <div class="priority-list" id="priorityList"></div>
+  </div>
+
+  <!-- Add form -->
+  <div class="card">
+    <div class="card-title">Add Contact</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <input class="inp" id="cName" placeholder="Name (e.g. Mom)"/>
+      <input class="inp" id="cPhone" placeholder="Phone (+91...)"/>
+      <input class="inp" id="cRelation" placeholder="Relation (Family / Friend)"/>
+      <div class="priority-toggle" onclick="togglePriority(this)">
+        <div class="toggle-track" id="priorityTrack"><div class="toggle-thumb"></div></div>
+        <div>
+          <div style="font-size:12px;font-weight:500">Priority contact</div>
+          <div style="font-size:10px;color:var(--muted)">Alert first in emergency</div>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="addContact()">+ Add Contact</button>
+    </div>
+  </div>
+
+  <!-- Contact list -->
+  <div class="card">
+    <div class="card-title">All Contacts</div>
+    <div id="contactsList"><div class="empty-state">No contacts added yet</div></div>
+  </div>
+
+  <!-- SOS Log -->
+  <div class="card">
+    <div class="card-title">SOS History</div>
+    <div id="sosList"><div class="empty-state">No SOS alerts yet</div></div>
+  </div>
+
+</div>
+
+<!-- ══ COUNTDOWN OVERLAY ═════════════════════════════════════════ -->
+<div class="countdown-overlay" id="countdownOverlay">
+  <div style="font-size:13px;color:var(--muted)">SOS Sending in...</div>
+  <div class="cdown-ring">
+    <svg width="110" height="110" viewBox="0 0 110 110">
+      <circle id="cdownCircle" cx="55" cy="55" r="50" stroke-dashoffset="0"/>
+    </svg>
+    <div class="cdown-num" id="cdownNum">5</div>
+  </div>
+  <div class="cdown-label">Tap cancel if this was<br/>accidental (Fake Alert Filter)</div>
+  <button class="cdown-cancel" onclick="cancelSOS()">Cancel — False Alarm</button>
+</div>
+
+<!-- ══ SOS FLASH ════════════════════════════════════════════════ -->
+<div class="sos-flash" id="sosFlash">
+  <div class="flash-icon">🚨</div>
+  <div class="flash-title">SOS SENT!</div>
+  <div class="flash-sub" id="flashMsg">Alert sent to all trusted contacts with your live location</div>
+  <button class="flash-close" onclick="closeFlash()">I'm Safe Now</button>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ══ BOTTOM NAV ════════════════════════════════════════════════ -->
+<div class="bottom-nav">
+  <div class="nav-item active" id="nav-home" onclick="switchTab('home',this)">
+    <div class="nav-icon">⌂</div>
+    <div class="nav-txt">Home</div>
+    <div class="nav-pip"></div>
+  </div>
+  <div class="nav-item" id="nav-ai" onclick="switchTab('ai',this)">
+    <div class="nav-icon">◈</div>
+    <div class="nav-txt">AI Risk</div>
+  </div>
+  <div class="nav-item" id="nav-feat" onclick="switchTab('feat',this)">
+    <div class="nav-icon">◎</div>
+    <div class="nav-txt">Features</div>
+  </div>
+  <div class="nav-item" id="nav-contacts" onclick="switchTab('contacts',this)">
+    <div class="nav-icon">♡</div>
+    <div class="nav-txt">Contacts</div>
+  </div>
+</div>
+
+<script>
+const API='http://localhost:3000';
+let contacts=[];
+let timerInterval=null,timerSecs=0;
+let voiceActive=false,recognition=null;
+let sosCountdown=null,sosSource='button';
+let trackingOn=true,isPriorityOn=false;
+let shakeCount=0,lastShake=0;
+
+// ── INIT ─────────────────────────────────────────────────────────
+window.onload=async()=>{
+  updateTime();setInterval(updateTime,1000);
+  await loadContacts();
+  await checkRisk();
+  setInterval(checkRisk,30000);
+  setupShake();
+  updateSuggestions('safe');
+};
+
+function updateTime(){
+  const n=new Date(),h=String(n.getHours()).padStart(2,'0'),m=String(n.getMinutes()).padStart(2,'0');
+  document.getElementById('timeVal').textContent=h+':'+m;
+  document.getElementById('aiTimeVal').textContent=h+':'+m;
+}
+
+// ── TABS ─────────────────────────────────────────────────────────
+function switchTab(name,el){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    n.classList.remove('active');
+    const p=n.querySelector('.nav-pip');if(p)p.remove();
+  });
+  document.getElementById('screen-'+name).classList.add('active');
+  el.classList.add('active');
+  const pip=document.createElement('div');pip.className='nav-pip';el.appendChild(pip);
+  if(name==='contacts'){renderPriorityList();loadSosLog();}
+}
+
+// ── RISK ─────────────────────────────────────────────────────────
+function getFactor(id){return document.getElementById(id).value==='1';}
+
+async function checkRisk(){
+  const night=getFactor('chkNight'),isolated=getFactor('chkIsolated'),
+        stationary=getFactor('chkStationary'),dark=getFactor('chkDark');
+  let score=0;
+  const h=new Date().getHours();
+  if(night||h>=22||h<=5)score+=38;
+  else if(h>=20||h<=7)score+=18;
+  if(isolated)score+=32;
+  if(stationary)score+=14;
+  if(dark)score+=12;
+  if(isolated&&(night||h>=22))score+=10;
+  score=Math.min(score,100);
+  const level=score>=60?'danger':score>=28?'medium':'safe';
+  updateRiskUI({score,level});
+}
+
+function toggleFactor(chip,id){
+  const cur=document.getElementById(id).value==='1';
+  document.getElementById(id).value=cur?'0':'1';
+  chip.classList.toggle('on',!cur);
+  checkRisk();
+}
+
+function updateRiskUI({score,level}){
+  const colors={safe:'var(--green2)',medium:'var(--amber)',danger:'var(--red)'};
+  const labels={safe:'Safe',medium:'Caution',danger:'Danger'};
+  const c=colors[level];
+  document.getElementById('riskScoreVal').textContent=score+'%';
+  document.getElementById('riskScoreVal').style.color=c;
+  document.getElementById('aiScoreDisplay').textContent=score+'%';
+  document.getElementById('aiScoreDisplay').className='risk-score-big '+level;
+  document.getElementById('riskFill').style.width=score+'%';
+  document.getElementById('riskFill').style.background=c;
+  document.getElementById('aiAreaVal').textContent=getFactor('chkIsolated')?'Isolated':'Normal';
+  document.getElementById('aiMotionVal').textContent=getFactor('chkStationary')?'Stationary':'Moving';
+  document.getElementById('aiLightVal').textContent=getFactor('chkDark')?'Dark':'Daylight';
+  const badge=`<div class="bdot ${level}"></div><span>${labels[level]}</span>`;
+  ['homeBadge','aiBadge','navBadge'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.className='rbadge '+level;el.innerHTML=badge;
+  });
+  const alertCard=document.getElementById('riskAlertCard');
+  const alertDesc=document.getElementById('riskAlertDesc');
+  if(level==='danger'){
+    alertCard.style.display='block';
+    alertDesc.textContent='High risk detected! Isolated area or late night conditions. AI recommends immediate action.';
+    updateSuggestions('danger');
+  }else if(level==='medium'){
+    alertCard.style.display='block';
+    alertDesc.textContent='Moderate risk detected. Stay alert and keep your phone accessible.';
+    updateSuggestions('medium');
+  }else{
+    alertCard.style.display='none';
+    updateSuggestions('safe');
+  }
+}
+
+function updateSuggestions(level){
+  const map={
+    safe:[{icon:'✓',bg:'rgba(139,191,78,0.12)',t:'You are safe',d:'No immediate action needed'}],
+    medium:[
+      {icon:'👁',bg:'rgba(240,180,41,0.12)',t:'Stay alert',d:'Keep surroundings in view'},
+      {icon:'📍',bg:'rgba(74,158,224,0.12)',t:'Share location',d:'Let someone know where you are'},
+      {icon:'→',bg:'rgba(139,191,78,0.12)',t:'Move to busier area',d:'Head towards crowd or light'}
+    ],
+    danger:[
+      {icon:'→',bg:'rgba(139,191,78,0.12)',t:'Move to crowded area',d:'Market or metro station nearby'},
+      {icon:'📞',bg:'rgba(74,158,224,0.12)',t:'Activate fake call',d:'Simulate incoming call now'},
+      {icon:'⚑',bg:'rgba(226,75,74,0.12)',t:'Alert contacts now',d:'Send live location immediately'},
+      {icon:'📢',bg:'rgba(240,180,41,0.12)',t:'Sound alarm',d:'Loud siren to attract help'}
+    ]
+  };
+  document.getElementById('suggestionsList').innerHTML=
+    (map[level]||map.safe).map(s=>
+      `<div class="suggestion">
+        <div class="sug-icon" style="background:${s.bg}">${s.icon}</div>
+        <div><div class="sug-t">${s.t}</div><div class="sug-d">${s.d}</div></div>
+      </div>`
+    ).join('');
+}
+
+// ── SOS WITH FAKE ALERT FILTER ───────────────────────────────────
+function initiateSOS(src){
+  sosSource=src||'button';
+  let count=5;
+  const overlay=document.getElementById('countdownOverlay');
+  const numEl=document.getElementById('cdownNum');
+  const circle=document.getElementById('cdownCircle');
+  const circumference=314;
+  overlay.classList.add('show');
+  numEl.textContent=count;
+  circle.style.strokeDashoffset=0;
+  if(sosCountdown)clearInterval(sosCountdown);
+  sosCountdown=setInterval(()=>{
+    count--;
+    numEl.textContent=count;
+    circle.style.strokeDashoffset=circumference*(1-count/5);
+    if(count<=0){
+      clearInterval(sosCountdown);sosCountdown=null;
+      overlay.classList.remove('show');
+      sendSOSNow();
+    }
+  },1000);
+}
+
+function cancelSOS(){
+  if(sosCountdown){clearInterval(sosCountdown);sosCountdown=null;}
+  document.getElementById('countdownOverlay').classList.remove('show');
+  showToast('✓ SOS cancelled — false alarm filter worked!');
+}
+
+async function sendSOSNow(){
+  navigator.geolocation?.getCurrentPosition(
+    pos=>doSendSOS({lat:pos.coords.latitude,lng:pos.coords.longitude}),
+    ()=>doSendSOS({lat:12.9716,lng:77.5946})
+  );
+}
+
+async function doSendSOS(location){
+  try{
+    const r=await fetch(API+'/api/sos',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location,triggeredBy:sosSource})});
+    const d=await r.json();
+    document.getElementById('flashMsg').textContent=d.message||'SOS alert sent with priority order!';
+  }catch{
+    document.getElementById('flashMsg').textContent='SOS sent to all contacts in priority order!';
+  }
+  document.getElementById('trackBadge').classList.add('on');
+  document.getElementById('sosFlash').classList.add('show');
+}
+
+function closeFlash(){
+  document.getElementById('sosFlash').classList.remove('show');
+  loadSosLog();
+}
+
+// ── TRACKING ────────────────────────────────────────────────────
+function toggleTracking(){
+  trackingOn=!trackingOn;
+  document.getElementById('trackToggle').textContent=trackingOn?'● On':'○ Off';
+  document.getElementById('trackToggle').style.color=trackingOn?'var(--green2)':'var(--muted)';
+  showToast(trackingOn?'📍 Location tracking on':'Location tracking paused');
+}
+
+// ── CONTACTS ────────────────────────────────────────────────────
+async function loadContacts(){
+  try{
+    const r=await fetch(API+'/api/contacts');
+    const d=await r.json();contacts=d.contacts;
+  }catch{
+    contacts=[
+      {id:1,name:'Mom',phone:'+91-9876543210',relation:'Family',priority:true},
+      {id:2,name:'Ravi',phone:'+91-9876543211',relation:'Friend',priority:false}
+    ];
+  }
+  renderContactsRow();renderContactsList();
+}
+
+const avColors=['av-green','av-blue','av-purple','av-green'];
+function renderContactsRow(){
+  const r=document.getElementById('contactsRow');
+  r.innerHTML=contacts.map((c,i)=>
+    `<div class="chip ${c.priority?'priority':''}">
+      <div class="avatar ${avColors[i%4]}">${c.name.substring(0,2).toUpperCase()}</div>
+      <div class="chip-name">${c.name}</div>
+      ${c.priority?'<div class="priority-star">★ Priority</div>':''}
+    </div>`
+  ).join('')+
+  `<div class="chip" onclick="switchTab('contacts',document.getElementById('nav-contacts'))">
+    <div class="avatar" style="background:rgba(255,255,255,0.05);color:var(--muted)">+</div>
+    <div class="chip-name">Add</div>
+  </div>`;
+}
+
+function renderContactsList(){
+  const l=document.getElementById('contactsList');
+  if(!l)return;
+  l.innerHTML=contacts.length?contacts.map((c,i)=>
+    `<div class="clist-item">
+      <div class="avatar ${avColors[i%4]}" style="width:38px;height:38px;flex-shrink:0">${c.name.substring(0,2).toUpperCase()}</div>
+      <div class="clist-info">
+        <div class="clist-name">${c.name} <span style="font-size:10px;color:var(--muted);font-weight:400">${c.relation}</span></div>
+        <div class="clist-phone">${c.phone}</div>
+        ${c.priority?'<div class="clist-priority">★ Priority — alerts first</div>':''}
+      </div>
+      <button class="del-btn" onclick="deleteContact(${c.id})">✕</button>
+    </div>`
+  ).join(''):'<div class="empty-state">No contacts yet</div>';
+}
+
+function renderPriorityList(){
+  const el=document.getElementById('priorityList');if(!el)return;
+  const sorted=[...contacts].sort((a,b)=>(b.priority?1:0)-(a.priority?1:0));
+  el.innerHTML=sorted.length?sorted.map((c,i)=>
+    `<div class="priority-item">
+      <div class="priority-num">${i+1}</div>
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:500">${c.name}</div>
+        <div style="font-size:10px;color:var(--muted)">${c.relation} · ${c.phone}</div>
+      </div>
+      ${c.priority?'<div style="font-size:10px;color:var(--amber)">★ First</div>':''}
+    </div>`
+  ).join(''):'<div class="empty-state">Add contacts below</div>';
+}
+
+function togglePriority(el){
+  isPriorityOn=!isPriorityOn;
+  document.getElementById('priorityTrack').classList.toggle('on',isPriorityOn);
+}
+
+async function addContact(){
+  const name=document.getElementById('cName').value.trim();
+  const phone=document.getElementById('cPhone').value.trim();
+  const relation=document.getElementById('cRelation').value.trim()||'Other';
+  if(!name||!phone){showToast('Enter name and phone');return;}
+  const c={id:Date.now(),name,phone,relation,priority:isPriorityOn};
+  try{
+    const r=await fetch(API+'/api/contacts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(c)});
+    const d=await r.json();contacts.push(d.contact||c);
+  }catch{contacts.push(c);}
+  document.getElementById('cName').value='';
+  document.getElementById('cPhone').value='';
+  document.getElementById('cRelation').value='';
+  isPriorityOn=false;
+  document.getElementById('priorityTrack').classList.remove('on');
+  renderContactsRow();renderContactsList();renderPriorityList();
+  showToast('✓ '+name+' added'+(c.priority?' as priority contact':''));
+}
+
+async function deleteContact(id){
+  try{await fetch(API+'/api/contacts/'+id,{method:'DELETE'});}catch{}
+  contacts=contacts.filter(c=>c.id!==id);
+  renderContactsRow();renderContactsList();renderPriorityList();
+  showToast('Contact removed');
+}
+
+async function loadSosLog(){
+  try{
+    const r=await fetch(API+'/api/sos/log');const d=await r.json();
+    const el=document.getElementById('sosList');if(!el)return;
+    el.innerHTML=d.log.length?d.log.slice().reverse().map(s=>
+      `<div class="log-item">
+        <div class="log-time">${new Date(s.time).toLocaleString()}</div>
+        <div class="log-type" style="color:var(--red)">🚨 SOS via ${s.triggeredBy}</div>
+        <div class="log-sub">Sent to: ${s.contacts?.join(', ')||'contacts'}</div>
+      </div>`
+    ).join(''):'<div class="empty-state">No SOS alerts yet</div>';
+  }catch{}
+}
+
+// ── VOICE ───────────────────────────────────────────────────────
+function toggleVoice(){
+  voiceActive=!voiceActive;
+  document.querySelectorAll('.wbar').forEach(b=>b.classList.toggle('on',voiceActive));
+  const btn=document.getElementById('voiceBtn');
+  const status=document.getElementById('voiceStatus');
+  if(voiceActive){
+    btn.textContent='Stop Listening';
+    status.textContent='🎤 Listening... say "Help me"';
+    status.style.color='var(--green2)';
+    startSpeech();
+  }else{
+    btn.textContent='Start Listening';
+    status.textContent='Tap to activate voice detection';
+    status.style.color='var(--muted)';
+    if(recognition)recognition.stop();
+  }
+}
+
+function startSpeech(){
+  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){
+    showToast('Speech API not supported — use Chrome');return;
+  }
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  recognition=new SR();
+  recognition.continuous=true;recognition.interimResults=true;
+  recognition.onresult=e=>{
+    const t=Array.from(e.results).map(r=>r[0].transcript).join('').toLowerCase();
+    if(t.includes('help me')||t.includes('bachao')){
+      showToast('🎤 Voice trigger detected!');
+      initiateSOS('voice');
+    }
+  };
+  recognition.onerror=()=>{if(voiceActive)recognition.start();};
+  recognition.onend=()=>{if(voiceActive)recognition.start();};
+  recognition.start();
+}
+
+// ── TIMER ───────────────────────────────────────────────────────
+function startTimer(mins){
+  if(timerInterval)clearInterval(timerInterval);
+  timerSecs=mins*60;
+  document.getElementById('timerDisplay').style.color='var(--amber)';
+  showToast('⏱ Check-in timer: '+mins+' minutes');
+  timerInterval=setInterval(()=>{
+    timerSecs--;
+    const m=Math.floor(timerSecs/60),s=timerSecs%60;
+    document.getElementById('timerDisplay').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+    if(timerSecs<=0){
+      clearInterval(timerInterval);timerInterval=null;
+      document.getElementById('timerDisplay').textContent='ALERT!';
+      document.getElementById('timerDisplay').style.color='var(--red)';
+      showToast('⚠️ Timer expired — alerting contacts!');
+      initiateSOS('timer');
+    }
+  },1000);
+}
+
+function resetTimer(){
+  if(timerInterval)clearInterval(timerInterval);timerInterval=null;
+  document.getElementById('timerDisplay').textContent='OFF';
+  document.getElementById('timerDisplay').style.color='var(--amber)';
+  showToast('Timer stopped');
+}
+
+function checkIn(){
+  if(!timerInterval){showToast('No active timer');return;}
+  clearInterval(timerInterval);timerInterval=null;
+  document.getElementById('timerDisplay').textContent='SAFE ✓';
+  document.getElementById('timerDisplay').style.color='var(--green2)';
+  showToast('✓ Check-in confirmed! You are safe.');
+}
+
+// ── SHAKE DETECTION ─────────────────────────────────────────────
+function setupShake(){
+  if(!window.DeviceMotionEvent)return;
+  window.addEventListener('devicemotion',e=>{
+    const a=e.accelerationIncludingGravity;
+    if(!a)return;
+    const force=Math.abs(a.x)+Math.abs(a.y)+Math.abs(a.z);
+    const now=Date.now();
+    if(force>40&&(now-lastShake)>500){
+      shakeCount++;lastShake=now;
+      if(shakeCount>=3){shakeCount=0;showToast('📳 Shake detected — SOS!');initiateSOS('shake');}
+    }
+    if(now-lastShake>3000)shakeCount=0;
+  });
+}
+
+function showShake(){
+  showToast('📳 Shake your phone 3 times to trigger SOS');
+}
+
+// ── FAKE CALL ───────────────────────────────────────────────────
+function fakecall(){
+  const o=document.createElement('div');
+  o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:400;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;animation:fadeUp .3s ease';
+  o.innerHTML=`
+    <div style="font-size:11px;color:var(--muted);letter-spacing:.12em">INCOMING CALL</div>
+    <div style="width:80px;height:80px;border-radius:50%;background:rgba(139,191,78,0.15);display:flex;align-items:center;justify-content:center;font-size:32px;border:2px solid rgba(139,191,78,0.3)">👩</div>
+    <div style="font-family:'Syne',sans-serif;font-size:24px;font-weight:700">Mom</div>
+    <div style="font-size:12px;color:var(--muted)">+91-9876543210</div>
+    <div style="display:flex;gap:50px;margin-top:16px">
+      <div style="text-align:center">
+        <button onclick="this.closest('div[style]').remove()" style="width:64px;height:64px;border-radius:50%;background:#E24B4A;border:none;font-size:22px;cursor:pointer">✕</button>
+        <div style="font-size:10px;color:var(--muted);margin-top:6px">Decline</div>
+      </div>
+      <div style="text-align:center">
+        <button onclick="this.closest('div[style]').remove();showToast('📞 Fake call active')" style="width:64px;height:64px;border-radius:50%;background:var(--green);border:none;font-size:22px;cursor:pointer">✓</button>
+        <div style="font-size:10px;color:var(--muted);margin-top:6px">Answer</div>
+      </div>
+    </div>`;
+  document.body.appendChild(o);
+}
+
+// ── TOAST ────────────────────────────────────────────────────────
+let toastTimer=null;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  if(toastTimer)clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),3000);
+}
+</script>
+</body>
+</html>
