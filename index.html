@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SafeHer AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0D0D0F;--bg2:#141417;--bg3:#1C1C21;--bg4:#222228;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);
+  --text:#F0EFE8;--muted:#888780;--muted2:#555550;
+  --red:#E24B4A;--red-glow:rgba(226,75,74,0.35);
+  --green:#97C459;--green-glow:rgba(151,196,89,0.3);
+  --amber:#FAC775;--amber-bg:rgba(186,117,23,0.15);
+  --blue:#378ADD;
+}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center}
+/* ── NAV ── */
+nav{width:100%;max-width:420px;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:0.5px solid var(--border)}
+.nav-logo{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;letter-spacing:-0.5px}
+.nav-logo span{color:var(--green)}
+.nav-status{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.status-dot{width:7px;height:7px;border-radius:50%}
+/* ── SCREENS ── */
+.screen{width:100%;max-width:420px;padding:20px;display:none;flex-direction:column;gap:16px;animation:fadeIn 0.3s ease}
+.screen.active{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+/* ── CARDS ── */
+.card{background:var(--bg2);border-radius:16px;border:0.5px solid var(--border);padding:16px}
+.card-title{font-family:'Syne',sans-serif;font-size:11px;letter-spacing:0.1em;color:var(--muted);text-transform:uppercase;margin-bottom:10px}
+/* ── RISK BADGE ── */
+.risk-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500}
+.safe{background:rgba(99,153,34,0.12);color:var(--green);border:0.5px solid rgba(151,196,89,0.25)}
+.medium{background:rgba(186,117,23,0.12);color:var(--amber);border:0.5px solid rgba(250,199,117,0.25)}
+.danger{background:rgba(226,75,74,0.12);color:#F09595;border:0.5px solid rgba(226,75,74,0.25)}
+.bdot{width:6px;height:6px;border-radius:50%}
+.bdot.safe{background:var(--green);box-shadow:0 0 6px var(--green)}
+.bdot.medium{background:var(--amber)}
+.bdot.danger{background:#F09595;animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+/* ── MAP AREA ── */
+.map-box{height:140px;background:linear-gradient(135deg,#0f0f1a,#141428,#0d1520);border-radius:12px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.map-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(151,196,89,0.07) 1px,transparent 1px),linear-gradient(90deg,rgba(151,196,89,0.07) 1px,transparent 1px);background-size:22px 22px}
+.map-pin{width:14px;height:14px;border-radius:50%;background:var(--green);box-shadow:0 0 14px var(--green-glow);z-index:2;position:relative}
+.map-ring{position:absolute;border-radius:50%;border:1px solid rgba(151,196,89,0.4);animation:expand 2s infinite}
+.map-ring:nth-child(2){animation-delay:0.6s}
+@keyframes expand{0%{width:20px;height:20px;opacity:0.8}100%{width:70px;height:70px;opacity:0}}
+.map-label{position:absolute;bottom:8px;left:12px;font-size:10px;color:rgba(151,196,89,0.8)}
+/* ── SOS BUTTON ── */
